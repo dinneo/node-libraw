@@ -6,14 +6,14 @@
       "sources": [
         "LibRaw/internal/dcraw_common.cpp",
         "LibRaw/internal/dcraw_fileio.cpp",
-        "LibRaw/internal/demosaic_packs.cpp",
+        # "LibRaw/internal/demosaic_packs.cpp",
         "LibRaw/src/libraw_cxx.cpp",
         "LibRaw/src/libraw_datastream.cpp",
         "LibRaw/src/libraw_c_api.cpp"
       ],
       "include_dirs": [ 
-        "./LibRaw-demosaic-pack-GPL2",
-        "./LibRaw-demosaic-pack-GPL3",
+        # "./LibRaw-demosaic-pack-GPL2",
+        # "./LibRaw-demosaic-pack-GPL3",
         "./LibRaw"
       ],
       "libraries": [
@@ -21,16 +21,16 @@
       ],
       "cflags": [ 
         "-Wdeprecated-declarations",
-        "-pthread -w"
+        "-pthread -w",
       ],
       "cflags_cc": [
         "-pthread -w",
         "-fexceptions",
         "-DLIBRAW_NOTHREADS -w",
-        "-I./LibRaw-demosaic-pack-GPL2",
-        "-DLIBRAW_DEMOSAIC_PACK_GPL2",
-        "-I./LibRaw-demosaic-pack-GPL3",
-        "-DLIBRAW_DEMOSAIC_PACK_GPL3",
+        # "-I./LibRaw-demosaic-pack-GPL2",
+        # "-DLIBRAW_DEMOSAIC_PACK_GPL2",
+        # "-I./LibRaw-demosaic-pack-GPL3",
+        # "-DLIBRAW_DEMOSAIC_PACK_GPL3",
         "-DUSE_JPEG8"
       ],
       "conditions": [
