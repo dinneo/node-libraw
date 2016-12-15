@@ -32,7 +32,15 @@
         "-I./LibRaw-demosaic-pack-GPL3",
         "-DLIBRAW_DEMOSAIC_PACK_GPL3",
         "-DUSE_JPEG8"
-      ]
+      ],
+      "conditions": [
+        ["OS=='mac'", {
+          "xcode_settings": {
+            "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+            'OTHER_CPLUSPLUSFLAGS' : ['-Wno-c++11-narrowing']
+          }
+        }]
+      ],
     }
   ]
 }

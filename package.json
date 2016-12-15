@@ -8,7 +8,7 @@
   },
   "main": "libraw.js",
   "scripts": {
-    "build": "node-gyp configure build",
+    "build": "node-gyp configure rebuild",
     "test": "mocha tests.js"
   },
   "author": "",

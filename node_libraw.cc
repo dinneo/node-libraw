@@ -33,32 +33,34 @@ namespace node_libraw {
     Nan::Callback *callback = new Nan::Callback(Local<Function>::Cast(info[2]));
 
     std::ifstream file;
-    file.open(filename, std::ios::binary | std::ios::ate);
+    file.open(filename.c_str(), std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
     std::vector<char> buffer(size);
 
     if (file.read(buffer.data(), size)) {
+      RawProcessor.imgdata.params.output_tiff = 0;
+      RawProcessor.imgdata.params.output_bps = 8;
+      RawProcessor.imgdata.params.use_camera_wb = 1;
+
       RawProcessor.open_buffer(buffer.data(), size);
       RawProcessor.unpack();
-      RawProcessor.imgdata.params.output_tiff = 1;
-      RawProcessor.imgdata.params.output_bps = 16;
-      RawProcessor.imgdata.params.use_camera_wb = 1;
       RawProcessor.dcraw_process();
 
-      output = output + ".tiff";
-      RawProcessor.dcraw_ppm_tiff_writer(output.c_str());
-      RawProcessor.recycle();
+      libraw_processed_image_t *image = RawProcessor.dcraw_make_mem_image();
 
-      //info.GetReturnValue().Set(Nan::New(output).ToLocalChecked());
-
-      Local<v8::Value> argv[2] = {
+      Local<v8::Value> argv[4] = {
         Nan::Null(),
-        Nan::New(output).ToLocalChecked()
+        Nan::CopyBuffer(reinterpret_cast<const char*>(image->data), image->data_size).ToLocalChecked(),
+        Nan::New<Number>(image->width),
+        Nan::New<Number>(image->height)
       };
 
-      callback->Call(2, argv);
+      callback->Call(4, argv);
+
+      LibRaw::dcraw_clear_mem(image);
+      RawProcessor.recycle();
     }
 
     file.close();
@@ -77,10 +79,8 @@ namespace node_libraw {
 
     Nan::Callback *callback = new Nan::Callback(Local<Function>::Cast(info[2]));
 
-    std::string extension = "thumb.ppm";
-
     std::ifstream file;
-    file.open(filename, std::ios::binary | std::ios::ate);
+    file.open(filename.c_str(), std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
@@ -92,19 +92,17 @@ namespace node_libraw {
       RawProcessor.unpack_thumb();
 
       if (RawProcessor.imgdata.thumbnail.tformat == LIBRAW_THUMBNAIL_JPEG) {
-        extension = "thumb.jpg";
+        //
       }
-
-      output = output + "." + extension;
-      RawProcessor.dcraw_thumb_writer(output.c_str());
-      RawProcessor.recycle();
 
       Local<v8::Value> argv[2] = {
         Nan::Null(),
-        Nan::New(output).ToLocalChecked()
+        Nan::NewBuffer(RawProcessor.imgdata.thumbnail.thumb, RawProcessor.imgdata.thumbnail.tlength).ToLocalChecked()
       };
 
       callback->Call(2, argv);
+      
+      RawProcessor.recycle();
     }
 
     file.close();
