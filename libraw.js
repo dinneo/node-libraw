@@ -1,6 +1,32 @@
 const fs = require('fs');
 
-const raw = require('./build/Release/node_libraw');
+let raw;
+
+if (process.platform === 'win32') {
+  const polarr_rf = require('./dcraw_bundle.js')
+  raw = {
+    extract: (input, output, callback) => {
+      raw.extractThumb(input, output, callback)
+    },
+    extractThumb: (input, output, callback) => {
+      const done = (buffer) => {
+        callback(null, new Buffer(buffer))
+      }
+      const error = (err) => {
+        callback({message: "status.raw_failed"})
+      }
+
+      fs.readFile(input, (err, data) => {
+        if (err) return error(err)
+        let filename = input.split('/').pop()
+        polarr_rf(filename, new Uint8Array(data.buffer), ['-e', '/' + filename], done, error)
+      });
+
+    }
+  }
+} else {
+  raw = require('./build/Release/node_libraw');
+}
 
 const libraw = {
   extract: function(input, callback) {
